@@ -1,0 +1,176 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Light.FillColor.Text.Primary" Color="#E4000000"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.Default" Color="#FFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.MicaBackground" Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.SurfaceStroke" Color="#757575"/>
+    <SolidColorBrush x:Key="Light.FillColor.Text.Secondary" Color="#9B000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.Text.Tertiary" Color="#72000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.Text.Disabled" Color="#5C000000"/>
+	<SolidColorBrush x:Key="Light.FillColor.AccentText.Primary" Color="#003E92"/>
+	<SolidColorBrush x:Key="Light.FillColor.AccentText.Secondary" Color="#001A68"/>
+	<SolidColorBrush x:Key="Light.FillColor.AccentText.Tertiary" Color="#005FB8"/>
+	<SolidColorBrush x:Key="Light.FillColor.AccentText.Disabled" Color="#5C000000"/>
+	<SolidColorBrush x:Key="Light.FillColor.TextOnAccent.Primary" Color="#FFFFFF"/>
+	<SolidColorBrush x:Key="Light.FillColor.TextOnAccent.Secondary" Color="#B2FFFFFF"/>
+	<SolidColorBrush x:Key="Light.FillColor.TextOnAccent.Disabled" Color="#FFFFFF"/>
+	<SolidColorBrush x:Key="Light.FillColor.TextOnAccent.SelectedText" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.Default" Color="#B2FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.Secondary" Color="#80F9F9F9"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.Tertiary" Color="#4DF9F9F9"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.Quarternary" Color="#C2F3F3F3"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.Disabled" Color="#4DF9F9F9"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.Transparent" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.Control.InputActive" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlAlt.Transparent" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlAlt.Secondary" Color="#06000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlAlt.Tertiary" Color="#0F000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlAlt.Quarternary" Color="#18000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlAlt.Disabled" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlSolid.Default" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlStrong.Default" Color="#72000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlStrong.Disabled" Color="#51000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.Subtle.Transparent" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.Subtle.Secondary" Color="#0A000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.Subtle.Tertiary" Color="#06000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.Subtle.Disabled" Color="#00000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlOnImage.Default" Color="#C9FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlOnImage.Secondary" Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlOnImage.Tertiary" Color="#EBEBEB"/>
+    <SolidColorBrush x:Key="Light.FillColor.ControlOnImage.Disabled" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.Accent.Default" Color="#005FB8"/>
+    <SolidColorBrush x:Key="Light.FillColor.Accent.Secondary" Color="#E5005FB8"/>
+    <SolidColorBrush x:Key="Light.FillColor.Accent.Tertiary" Color="#CC005FB8"/>
+    <SolidColorBrush x:Key="Light.FillColor.Accent.Disabled" Color="#37000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.Accent.SelectedTextBackground" Color="#0078D4"/>
+    <LinearGradientBrush x:Key="Light.Elevation.Control.Border" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0F000000" Offset="0.9058"/>
+        <GradientStop Color="#28000000" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Light.Elevation.Circle.Border" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0F000000" Offset="0.5002"/>
+        <GradientStop Color="#28000000" Offset="0.9545"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Light.Elevation.TextControl.Border" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0F000000" Offset="0.9999"/>
+        <GradientStop Color="#72000000" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Light.Elevation.TextControl.BorderFocused" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0F000000" Offset="0.9687"/>
+        <GradientStop Color="#0067C0" Offset="0.9689"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Light.Elevation.AccentControl.Border" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#14FFFFFF" Offset="0.9067"/>
+        <GradientStop Color="#66000000" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.Default" Color="#0F000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.Secondary" Color="#29000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.OnAccentDefault" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.OnAccentSecondary" Color="#66000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.OnAccentTertiary" Color="#37000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.OnAccentDisabled" Color="#0F000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStroke.ForStrongFillWhenOnImage" Color="#59FFFFFF"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.CardStroke.Default" Color="#59FFFFFF"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.CardStroke.DefaultSolid" Color="#EBEBEB"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStrongStroke.Default" Color="#9B000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.ControlStrongStroke.Disabled" Color="#37000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.SurfaceStroke.Default" Color="#66757575"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.SurfaceStroke.Flyout" Color="#37000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.DividerStroke.Default" Color="#14000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.FocusStroke.Outer" Color="#E4000000"/>
+    <SolidColorBrush x:Key="Light.StrokeColor.FocusStroke.Inner" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.CardBackground.Default" Color="#B2FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.CardBackground.Secondary" Color="#80F6F6F6"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.CardBackground.Tertiary" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.Smoke.Default" Color="#4D000000"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.Layer.Default" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.Layer.Alt" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.LayerOnAcrylic.Default" Color="#40FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.LayerOnMicaBaseAlt.Default" Color="#B2FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.LayerOnMicaBaseAlt.Tertiary" Color="#F9F9F9"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.LayerOnMicaBaseAlt.Transparent" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.LayerOnMicaBaseAlt.Secondary" Color="#0A000000"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.Base" Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.BaseAlt" Color="#DADADA"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.Secondary" Color="#EEEEEE"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.Tertiary" Color="#F9F9F9"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.Quarternary" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.Quinary" Color="#FDFDFD"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.SolidBackground.Senary" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.MicaBackground.Base" Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.MicaBackground.BaseAlt" Color="#DADADA"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.AcrylicBackground.Base" Color="#E5F3F3F3"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.AcrylicBackground.Default" Color="#D9FCFCFC"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.AccentAcrylicBackground.Base" Color="#E599EBFF"/>
+    <SolidColorBrush x:Key="Light.Background.FillColor.AccentAcrylicBackground.Default" Color="#CC99EBFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.Attention" Color="#005FB7"/>
+    <SolidColorBrush x:Key="Dark.FillColor.System.Attention" Color="#60CDFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.Success" Color="#0F7B0F"/>
+    <SolidColorBrush x:Key="Dark.FillColor.System.Success" Color="#6CCB5F"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.Caution" Color="#9D5D00"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.Critical" Color="#C42B1C"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.Neutral" Color="#72000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.SolidNeutral" Color="#8A8A8A"/>
+    <SolidColorBrush x:Key="Dark.FillColor.System.SolidNeutral" Color="#9D9D9D"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.AttentionBackground" Color="#80F6F6F6"/>
+    <SolidColorBrush x:Key="Dark.FillColor.System.AttentionBackground" Color="#08FFFFFF"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.SuccessBackground" Color="#DFF6DD"/>
+    <SolidColorBrush x:Key="Dark.FillColor.System.SuccessBackground" Color="#393D1B"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.CautionBackground" Color="#FFF4CE"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.CriticalBackground" Color="#FDE7E9"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.NeutralBackground" Color="#06000000"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.SolidNeutralBackground" Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="Dark.FillColor.System.SolidNeutralBackground" Color="#2E2E2E"/>
+    <SolidColorBrush x:Key="Light.FillColor.System.SolidAttentionBackground" Color="#F7F7F7"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.CaptionCloseText.Primary" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.CaptionCloseText.Secondary" Color="#B2FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.IllustrationOnAcrylic.Primary" Color="#1A000000"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.CaptionControlCloseFill.Primary" Color="#C42B1C"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.CaptionControlCloseFill.Secondary" Color="#E5C42B1C"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButton.Default" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButton.Secondary" Color="#BFFFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButton.Tertiary" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButton.Disabled" Color="#20FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButtonAlt.Default" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButtonAlt.Secondary" Color="#40FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButtonAlt.Tertiary" Color="#20FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.KeyboardButtonAlt.Disabled" Color="#20FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.TaskbarItemFill.Primary" Color="#B2FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.TaskbarItemFill.Secondary" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.TaskbarItemFill.Tertiary" Color="#4DFFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.TaskbarItemFill.Transparent" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.TaskbarItemIndicator.Running" Color="#70000000"/>
+    <LinearGradientBrush x:Key="Light.Shell.FillColor.ShimmerGradientFill.Default" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0C000000" Offset="0"/>
+        <GradientStop Color="#07000000" Offset="0.4167"/>
+        <GradientStop Color="#07000000" Offset="0.4948"/>
+        <GradientStop Color="#0C000000" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.ShimmerFill.Primary" Color="#07000000"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.ShimmerFill.Secondary" Color="#0E000000"/>
+    <LinearGradientBrush x:Key="Light.Shell.StrokeColor.KeyboardButtonGradient.Default" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0F000000" Offset="0.9464"/>
+        <GradientStop Color="#28000000" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Light.Shell.StrokeColor.TaskbarItemGradientStroke.Primary" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#07000000" Offset="0.9464"/>
+        <GradientStop Color="#16000000" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Light.Shell.StrokeColor.TaskbarItemGradientStroke.Secondary" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#05000000" Offset="0.9464"/>
+        <GradientStop Color="#0F000000" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.IllustrationOnAcrylicStrong.Primary" Color="#70000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.KeyboardButton.Primary" Color="#0F000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.KeyboardButton.Secondary" Color="#29000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.TaskbarItemStroke.Primary" Color="#17000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.TaskbarItemStroke.Secondary" Color="#0F000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.TaskbarItemStroke.Tertiary" Color="#08000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.TaskbarItemStroke.Quarternary" Color="#05000000"/>
+    <SolidColorBrush x:Key="Light.Shell.StrokeColor.TaskbarItemStroke.Quinary" Color="#05000000"/>
+    <SolidColorBrush x:Key="Light.Shell.Background.FillColor.CardBackgroundOnThinAcrylic.Default" Color="#E5F6F6F6"/>
+    <SolidColorBrush x:Key="Light.Shell.Background.FillColor.CardBackgroundOnThinAcrylic.Secondary" Color="#F9F9F9"/>
+    <SolidColorBrush x:Key="Light.Shell.Background.FillColor.LayerOnAcrylic.Default" Color="#40FFFFFF"/>
+    <SolidColorBrush x:Key="Light.Shell.Background.FillColor.AcrylicBackground.Thin" Color="#99D3D3D3"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.CaptionControlCloseText.Primary" Color="#FFF"/>
+    <SolidColorBrush x:Key="Light.Shell.FillColor.CaptionControlCloseText.Secondary" Color="#FFF" Opacity=".7"/>
+</ResourceDictionary>
