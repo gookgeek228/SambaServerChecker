@@ -26,6 +26,25 @@
     </Window.Resources>
 
     <Grid>
-        
+        <TabControl>
+            <!-- Вкладка с системной информацией -->
+            <TabItem Header="Система">
+                <TextBox Text="{Binding SystemStatus}" 
+                       FontFamily="Consolas"
+                       FontSize="12"
+                       IsReadOnly="True"
+                       VerticalScrollBarVisibility="Auto"
+                       HorizontalScrollBarVisibility="Auto"/>
+            </TabItem>
+
+            <!-- Вкладка с сетью -->
+            <TabItem Header="Сеть">
+                <TextBox Text="{Binding NetworkStatus}" 
+                       FontFamily="Consolas"
+                       FontSize="12"
+                       IsReadOnly="True"
+                       VerticalScrollBarVisibility="Auto"/>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

@@ -23,6 +23,7 @@ namespace SambaServerChecker
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainViewModel();
         }
     }
 }
