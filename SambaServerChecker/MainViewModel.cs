@@ -17,7 +17,12 @@ namespace SambaServerChecker
         private string _systemStatus = "Подключаемся...";
         private string _networkStatus = "Проверка сети...";
 
+        public List<string> SystemStatusLines { get; private set; }
+        public List<string> NetworkStatusLines { get; private set; }
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+
 
         public string SystemStatus
         {
@@ -54,8 +59,10 @@ namespace SambaServerChecker
         {
             await System.Threading.Tasks.Task.Run(() =>
             {
-                SystemStatus = GetSystemInfo();
-                NetworkStatus = GetNetworkInfo();
+                SystemStatusLines = GetSystemInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                NetworkStatusLines = GetNetworkInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                OnPropertyChanged(nameof(SystemStatusLines));
+                OnPropertyChanged(nameof(NetworkStatusLines));
             });
         }
 

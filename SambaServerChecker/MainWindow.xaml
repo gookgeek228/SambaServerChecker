@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SambaServerChecker"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        FontFamily="/Resources/Fonts/#SegoeUI">
     
     <Window.Resources>
         <ResourceDictionary>
@@ -25,25 +25,44 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
+    <Grid Margin="10">
         <TabControl>
             <!-- Вкладка с системной информацией -->
             <TabItem Header="Система">
-                <TextBox Text="{Binding SystemStatus}" 
-                       FontFamily="Consolas"
-                       FontSize="12"
-                       IsReadOnly="True"
-                       VerticalScrollBarVisibility="Auto"
-                       HorizontalScrollBarVisibility="Auto"/>
+                <StackPanel>
+                    <TextBlock Text="Информация о системе" 
+                               FontWeight="Bold" 
+                               FontSize="16" 
+                               Margin="0,0,0,5"/>
+                    <ListView ItemsSource="{Binding SystemStatusLines}" Style="{StaticResource ListView}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" 
+                                           FontFamily="/Resources/Fonts/#SegoeUI" 
+                                           FontSize="12"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
             </TabItem>
 
             <!-- Вкладка с сетью -->
             <TabItem Header="Сеть">
-                <TextBox Text="{Binding NetworkStatus}" 
-                       FontFamily="Consolas"
-                       FontSize="12"
-                       IsReadOnly="True"
-                       VerticalScrollBarVisibility="Auto"/>
+                <StackPanel>
+                    <TextBlock Text="Информация о сети" 
+                               FontWeight="Bold" 
+                               FontSize="16" 
+                               Margin="0,0,0,5"/>
+                    <ListView ItemsSource="{Binding NetworkStatusLines}" Style="{StaticResource ListView}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" 
+                                           FontFamily="/Resources/Fonts/#SegoeUI" 
+                                           FontSize="12"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
             </TabItem>
         </TabControl>
     </Grid>
