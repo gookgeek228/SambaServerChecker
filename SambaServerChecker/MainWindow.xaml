@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SambaServerChecker"
         mc:Ignorable="d"
-        FontFamily="/Resources/Fonts/#SegoeUI">
+        FontFamily="/Resources/Fonts/#SegoeUI" Height="252">
     
     <Window.Resources>
         <ResourceDictionary>
@@ -27,38 +27,59 @@
 
     <Grid Margin="10">
         <TabControl>
-            <!-- Вкладка с системной информацией -->
-            <TabItem Header="Система">
+
+            <TabItem Header="Сервер">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="IP-адрес сервера:" Margin="0,0,0,5"/>
+                    <TextBox Grid.Row="1" Text="{Binding ServerIp}" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="2" Text="Имя пользователя:" Margin="0,0,0,5"/>
+                    <TextBox Grid.Row="3" Text="{Binding Username}" Margin="0,0,0,10"/>
+
+                    <TextBlock Grid.Row="4" Text="Пароль:" Margin="0,0,0,5"/>
+                    <PasswordBox Grid.Row="5" x:Name="PasswordBox" Margin="0,0,0,10"/>
+
+                    <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Подключиться" 
+                                Command="{Binding ConnectCommand}"
+                                Width="120"
+                                Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding ConnectionStatus}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Система" IsEnabled="{Binding CanAccessNetworkAndSystemTabs}">
                 <StackPanel>
-                    <TextBlock Text="Информация о системе" 
-                               FontWeight="Bold" 
-                               FontSize="16" 
-                               Margin="0,0,0,5"/>
-                    <ListView ItemsSource="{Binding SystemStatusLines}" Style="{StaticResource ListView}">
+                    <TextBlock Text="Информация о системе" FontWeight="Bold" FontSize="16" Margin="0,0,0,5"/>
+                    <ListView ItemsSource="{Binding SystemStatusLines}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" 
-                                           FontFamily="/Resources/Fonts/#SegoeUI" 
-                                           FontSize="12"/>
+                                <TextBlock Text="{Binding}" FontSize="12"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                 </StackPanel>
             </TabItem>
 
-            <!-- Вкладка с сетью -->
-            <TabItem Header="Сеть">
+            <TabItem Header="Сеть" IsEnabled="{Binding CanAccessNetworkAndSystemTabs}">
                 <StackPanel>
-                    <TextBlock Text="Информация о сети" 
-                               FontWeight="Bold" 
-                               FontSize="16" 
-                               Margin="0,0,0,5"/>
-                    <ListView ItemsSource="{Binding NetworkStatusLines}" Style="{StaticResource ListView}">
+                    <TextBlock Text="Информация о сети" FontWeight="Bold" FontSize="16" Margin="0,0,0,5"/>
+                    <ListView ItemsSource="{Binding NetworkStatusLines}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" 
-                                           FontFamily="/Resources/Fonts/#SegoeUI" 
-                                           FontSize="12"/>
+                                <TextBlock Text="{Binding}" FontSize="12"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

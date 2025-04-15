@@ -1,4 +1,5 @@
-﻿using Renci.SshNet;
+﻿using GalaSoft.MvvmLight.Command;
+using Renci.SshNet;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,62 +8,129 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
+using System.Windows.Input;
 
 namespace SambaServerChecker
 {
     public class MainViewModel : System.ComponentModel.INotifyPropertyChanged
     {
-        private readonly Renci.SshNet.SshClient _ssh;
-        private readonly System.Timers.Timer _timer;
-        private string _systemStatus = "Подключаемся...";
-        private string _networkStatus = "Проверка сети...";
+        private SshClient _ssh;
+        private Timer _timer;
+        private bool _isConnected;
+
+        private string _serverIp;
+        private string _username;
+        private string _password;
+        public ICommand ConnectCommand { get; }
+
+
+        public string ServerIp
+        {
+            get => _serverIp;
+            set { _serverIp = value; OnPropertyChanged(); }
+        }
+
+        public string Username
+        {
+            get => _username;
+            set { _username = value; OnPropertyChanged(); }
+        }
+
+        public string Password
+        {
+            get => _password;
+            set { _password = value; OnPropertyChanged(); }
+        }
 
         public List<string> SystemStatusLines { get; private set; }
         public List<string> NetworkStatusLines { get; private set; }
 
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        public string ConnectionStatus { get; private set; } = "Не подключено";
 
-
-
-        public string SystemStatus
-        {
-            get => _systemStatus;
-            set { _systemStatus = value; OnPropertyChanged(); }
-        }
-
-        public string NetworkStatus
-        {
-            get => _networkStatus;
-            set { _networkStatus = value; OnPropertyChanged(); }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public MainViewModel()
         {
-            
-            _ssh = new Renci.SshNet.SshClient("192.168.58.124", "ivan", "Tesak228");
+            ConnectCommand = new RelayCommand(ConnectToServer);
+            LoadSavedCredentials();
+            SystemStatusLines = new List<string>();
+            NetworkStatusLines = new List<string>();
+        }
 
+        private void LoadSavedCredentials()
+        {
+            ServerIp = Properties.Settings.Default.LastServerIp;
+            Username = Properties.Settings.Default.LastUsername;
+            Password = Properties.Settings.Default.LastPassword;
+
+            if (!string.IsNullOrEmpty(ServerIp))
+            {
+                ConnectToServer();
+            }
+        }
+
+        public void ConnectToServer()
+        {
             try
             {
-                _ssh.Connect();
-            }
-            catch (System.Exception ex)
-            {
-                SystemStatus = $"Ошибка подключения: {ex.Message}";
-            }
+                Password = ((MainWindow)Application.Current.MainWindow).PasswordBox.Password;
 
-            _timer = new System.Timers.Timer(3000);
+                if (_ssh != null && _ssh.IsConnected)
+                    _ssh.Disconnect();
+
+                _ssh = new SshClient(ServerIp, Username, Password);
+                _ssh.Connect();
+
+                IsConnected = true;
+                ConnectionStatus = $"Подключено к {ServerIp}";
+                OnPropertyChanged(nameof(ConnectionStatus));
+                SaveCredentials();
+
+                InitializeTimer();
+            }
+            catch (Exception ex)
+            {
+                IsConnected = false;
+                ConnectionStatus = $"Ошибка подключения: {ex.Message}";
+                OnPropertyChanged(nameof(ConnectionStatus));
+                StopTimer();
+            }
+        }
+
+        private void SaveCredentials()
+        {
+            Properties.Settings.Default.LastServerIp = ServerIp;
+            Properties.Settings.Default.LastUsername = Username;
+            Properties.Settings.Default.LastPassword = Password;
+            Properties.Settings.Default.Save();
+        }
+
+        private void InitializeTimer()
+        {
+            _timer = new Timer(3000);
             _timer.Elapsed += async (s, e) => await UpdateAll();
             _timer.Start();
         }
 
-        private async System.Threading.Tasks.Task UpdateAll()
+        private void StopTimer()
         {
-            await System.Threading.Tasks.Task.Run(() =>
+            _timer?.Stop();
+            _timer?.Dispose();
+        }
+
+        private async Task UpdateAll()
+        {
+            await Task.Run(() =>
             {
-                SystemStatusLines = GetSystemInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                NetworkStatusLines = GetNetworkInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                OnPropertyChanged(nameof(SystemStatusLines));
-                OnPropertyChanged(nameof(NetworkStatusLines));
+                if (_ssh != null && _ssh.IsConnected)
+                {
+                    SystemStatusLines = GetSystemInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    NetworkStatusLines = GetNetworkInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                    OnPropertyChanged(nameof(SystemStatusLines));
+                    OnPropertyChanged(nameof(NetworkStatusLines));
+                }
             });
         }
 
@@ -120,10 +188,22 @@ namespace SambaServerChecker
                 return "Ошибка";
             }
         }
-
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        private bool IsConnected
         {
-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
+            get => _isConnected;
+            set
+            {
+                _isConnected = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanAccessNetworkAndSystemTabs));
+            }
+        }
+
+        public bool CanAccessNetworkAndSystemTabs => IsConnected;
+
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }
