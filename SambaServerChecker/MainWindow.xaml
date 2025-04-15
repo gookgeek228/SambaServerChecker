@@ -37,6 +37,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
@@ -55,16 +56,16 @@
                     <TextBlock Grid.Row="4" Text="Пароль:" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
                     <PasswordBox Grid.Row="5" x:Name="PasswordBox" Margin="0,5,0,5" Style="{StaticResource PasswordBox}"/>
 
-                    <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding ConnectionStatus}"
+                                   VerticalAlignment="Center"/>
                         <Button Content="Подключиться" 
                                 Command="{Binding ConnectCommand}"
                                 Width="120"
-                                Margin="0,0,10,0"
+                                Margin="20,0,10,0"
                                 Style="{StaticResource Button.Accent.IconBefore}"
                                 Background="{StaticResource Light.FillColor.Accent.Default}" 
                                 Foreground="{StaticResource Light.FillColor.TextOnAccent.Primary}" />
-                        <TextBlock Text="{Binding ConnectionStatus}"
-                                   VerticalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
@@ -72,7 +73,7 @@
             <TabItem Header="Система" IsEnabled="{Binding CanAccessNetworkAndSystemTabs}" FontSize="14"  Width="80">
                 <StackPanel>
                     <TextBlock Text="Информация о системе" FontWeight="Bold" FontSize="16" Margin="0,0,0,5"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="500">
                         <ListView ItemsSource="{Binding SystemStatusLines}" Style="{StaticResource ListView}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -88,7 +89,7 @@
             <TabItem Header="Сеть" IsEnabled="{Binding CanAccessNetworkAndSystemTabs}" FontSize="14"  Width="80">
                 <StackPanel>
                     <TextBlock Text="Информация о сети" FontWeight="Bold" FontSize="16" Margin="0,0,0,5"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="500">
                         <ListView ItemsSource="{Binding NetworkStatusLines}" Style="{StaticResource ListView}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
