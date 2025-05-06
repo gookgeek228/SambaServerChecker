@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -18,16 +19,43 @@ namespace SambaServerChecker
         private SshClient _ssh;
         private Timer _timer;
         private bool _isConnected;
+        private string _reqId;
+        private string _requestStatus;
 
         private const string ip = "192.168.211.123";
         private const string user = "ivan";
         private const string password = "Tesak228";
+
+        // HTTP клиент для запросов к API
+        private static readonly HttpClient httpClient = new HttpClient();
 
         public List<string> SystemStatusLines { get; private set; }
         public List<string> NetworkStatusLines { get; private set; }
         public List<string> CtsStatsLines { get; private set; }
         public List<string> RootDirectoryLines { get; private set; }
         public string ConnectionStatus { get; private set; } = "Не подключено";
+
+        public string ReqId
+        {
+            get => _reqId;
+            set
+            {
+                _reqId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string RequestStatus
+        {
+            get => _requestStatus;
+            set
+            {
+                _requestStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand FetchRequestStatusCommand => new RelayCommand(FetchRequestStatus);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -37,6 +65,8 @@ namespace SambaServerChecker
             NetworkStatusLines = new List<string>();
             CtsStatsLines = new List<string>();
             RootDirectoryLines = new List<string>();
+            ReqId = string.Empty;
+            RequestStatus = string.Empty;
             ConnectToServer();
         }
 
@@ -185,6 +215,25 @@ namespace SambaServerChecker
             return sb.ToString();
         }
 
+        private async void FetchRequestStatus()
+        {
+            if (string.IsNullOrWhiteSpace(ReqId))
+            {
+                RequestStatus = "Введите reqId.";
+                return;
+            }
+
+            try
+            {
+                var response = await httpClient.GetStringAsync($"http://172.26.11.66:8900/v2/requests/{ReqId}/status");
+                RequestStatus = response;
+            }
+            catch (Exception ex)
+            {
+                RequestStatus = $"Ошибка: {ex.Message}";
+            }
+        }
+
         private bool IsConnected
         {
             get => _isConnected;
@@ -200,6 +249,7 @@ namespace SambaServerChecker
         }
 
         public bool CanAccessNetworkAndSystemTabs => IsConnected;
+
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

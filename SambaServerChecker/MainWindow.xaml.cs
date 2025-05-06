@@ -28,7 +28,6 @@ namespace SambaServerChecker
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // Отправляем прокрутку в родительский ScrollViewer, если нужно
             var scrollViewer = FindParentScrollViewer((ScrollViewer)sender);
             if (scrollViewer != null)
             {
