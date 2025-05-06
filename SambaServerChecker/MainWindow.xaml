@@ -107,9 +107,18 @@
                     <TextBlock Text="Введите id" Margin="0,0,0,10" Style="{StaticResource Text.Body}"/>
                     <TextBox Text="{Binding ReqId}" Width="400" Margin="0,0,0,10" Style="{StaticResource TextBox}" HorizontalAlignment="Left"/>
                     <Button Command="{Binding FetchRequestStatusCommand}" Margin="0,0,0,10" Foreground="White" Content="Статус" Style="{StaticResource Button.Accent.TextOnly}"  HorizontalAlignment="Left"/>
-                    <TextBlock Text="{Binding RequestStatus}" Margin="0,0,0,20"
-                               TextWrapping="Wrap" Style="{StaticResource Text.Body}"/>
+                    
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" Height="300" Style="{StaticResource ScrollViewer}">
+                        <ListView ItemsSource="{Binding RequestStatus}" Style="{StaticResource ListView}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Focusable="False" Style="{StaticResource Text.Body}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </ScrollViewer>
                 </StackPanel>
+                
             </GroupBox>
 
         </StackPanel>

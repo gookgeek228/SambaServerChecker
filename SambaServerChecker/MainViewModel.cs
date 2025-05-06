@@ -20,8 +20,9 @@ namespace SambaServerChecker
         private Timer _timer;
         private bool _isConnected;
         private string _reqId;
-        private string _requestStatus;
+        private List<string> _requestStatus;
 
+        // Для подключения к серверу
         private const string ip = "192.168.211.123";
         private const string user = "ivan";
         private const string password = "Tesak228";
@@ -45,7 +46,7 @@ namespace SambaServerChecker
             }
         }
 
-        public string RequestStatus
+        public List<string> RequestStatus
         {
             get => _requestStatus;
             set
@@ -66,7 +67,7 @@ namespace SambaServerChecker
             CtsStatsLines = new List<string>();
             RootDirectoryLines = new List<string>();
             ReqId = string.Empty;
-            RequestStatus = string.Empty;
+            RequestStatus = new List<string>();
             ConnectToServer();
         }
 
@@ -219,18 +220,18 @@ namespace SambaServerChecker
         {
             if (string.IsNullOrWhiteSpace(ReqId))
             {
-                RequestStatus = "Введите reqId.";
+                RequestStatus = new List<string> { "Введите reqId." };
                 return;
             }
 
             try
             {
                 var response = await httpClient.GetStringAsync($"http://172.26.11.66:8900/v2/requests/{ReqId}/status");
-                RequestStatus = response;
+                RequestStatus = response.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             }
             catch (Exception ex)
             {
-                RequestStatus = $"Ошибка: {ex.Message}";
+                RequestStatus = new List<string> { $"Ошибка: {ex.Message}" };
             }
         }
 
