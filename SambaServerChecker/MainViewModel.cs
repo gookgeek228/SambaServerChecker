@@ -4,89 +4,53 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Windows;
-using System.Windows.Input;
 
 namespace SambaServerChecker
 {
-    public class MainViewModel : System.ComponentModel.INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged
     {
         private SshClient _ssh;
         private Timer _timer;
         private bool _isConnected;
 
-        private string _serverIp;
-        private string _username;
-        private string _password;
-        public ICommand ConnectCommand { get; }
-
-
-        public string ServerIp
-        {
-            get => _serverIp;
-            set { _serverIp = value; OnPropertyChanged(); }
-        }
-
-        public string Username
-        {
-            get => _username;
-            set { _username = value; OnPropertyChanged(); }
-        }
-
-        public string Password
-        {
-            get => _password;
-            set { _password = value; OnPropertyChanged(); }
-        }
+        private const string ip = "192.168.211.123";
+        private const string user = "ivan";
+        private const string password = "Tesak228";
 
         public List<string> SystemStatusLines { get; private set; }
         public List<string> NetworkStatusLines { get; private set; }
-
+        public List<string> CtsStatsLines { get; private set; }
+        public List<string> RootDirectoryLines { get; private set; }
         public string ConnectionStatus { get; private set; } = "Не подключено";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MainViewModel()
         {
-            ConnectCommand = new RelayCommand(ConnectToServer);
-            LoadSavedCredentials();
             SystemStatusLines = new List<string>();
             NetworkStatusLines = new List<string>();
-        }
-
-        private void LoadSavedCredentials()
-        {
-            ServerIp = Properties.Settings.Default.LastServerIp;
-            Username = Properties.Settings.Default.LastUsername;
-            Password = Properties.Settings.Default.LastPassword;
-
-            if (!string.IsNullOrEmpty(ServerIp))
-            {
-                ConnectToServer();
-            }
+            CtsStatsLines = new List<string>();
+            RootDirectoryLines = new List<string>();
+            ConnectToServer();
         }
 
         public void ConnectToServer()
         {
             try
             {
-                Password = ((MainWindow)Application.Current.MainWindow).PasswordBox.Password;
-
                 if (_ssh != null && _ssh.IsConnected)
                     _ssh.Disconnect();
 
-                _ssh = new SshClient(ServerIp, Username, Password);
+                _ssh = new SshClient(ip, user, password);
                 _ssh.Connect();
 
                 IsConnected = true;
-                ConnectionStatus = $"Подключено к {ServerIp}";
+                ConnectionStatus = $"Подключено к {ip}";
                 OnPropertyChanged(nameof(ConnectionStatus));
-                SaveCredentials();
-
                 InitializeTimer();
             }
             catch (Exception ex)
@@ -96,14 +60,6 @@ namespace SambaServerChecker
                 OnPropertyChanged(nameof(ConnectionStatus));
                 StopTimer();
             }
-        }
-
-        private void SaveCredentials()
-        {
-            Properties.Settings.Default.LastServerIp = ServerIp;
-            Properties.Settings.Default.LastUsername = Username;
-            Properties.Settings.Default.LastPassword = Password;
-            Properties.Settings.Default.Save();
         }
 
         private void InitializeTimer()
@@ -127,7 +83,11 @@ namespace SambaServerChecker
                 {
                     SystemStatusLines = GetSystemInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
                     NetworkStatusLines = GetNetworkInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    CtsStatsLines = GetCtsStats().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    RootDirectoryLines = GetRootDirectoryInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
+                    OnPropertyChanged(nameof(CtsStatsLines));
+                    OnPropertyChanged(nameof(RootDirectoryLines));
                     OnPropertyChanged(nameof(SystemStatusLines));
                     OnPropertyChanged(nameof(NetworkStatusLines));
                 }
@@ -149,7 +109,7 @@ namespace SambaServerChecker
                 sb.AppendLine("\n=== ПРОЦЕССЫ ===");
                 sb.AppendLine(_ssh.RunCommand("top -bn1 | head -n 10").Result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 sb.AppendLine($"Ошибка: {ex.Message}");
             }
@@ -177,25 +137,63 @@ namespace SambaServerChecker
         {
             try
             {
-                var client = new System.Net.Sockets.TcpClient();
-                var result = client.BeginConnect(host, port, null, null);
-                bool isOpen = result.AsyncWaitHandle.WaitOne(500);
-                client.Close(); 
-                return isOpen ? "Открыт" : "Закрыт";
+                using (var client = new TcpClient())
+                {
+                    var result = client.BeginConnect(host, port, null, null);
+                    bool isOpen = result.AsyncWaitHandle.WaitOne(500);
+                    client.EndConnect(result);
+                    return isOpen ? "Открыт" : "Закрыт";
+                }
             }
             catch
             {
                 return "Ошибка";
             }
         }
+
+        private string GetCtsStats()
+        {
+            var sb = new System.Text.StringBuilder();
+
+            try
+            {
+                sb.AppendLine(_ssh.RunCommand("/usr/share/cts/bin/cts show stats").Result);
+            }
+            catch (Exception ex)
+            {
+                return $"Ошибка получения CTS stats: {ex.Message}";
+            }
+
+            return sb.ToString();
+        }
+
+        private string GetRootDirectoryInfo()
+        {
+            var sb = new System.Text.StringBuilder();
+
+            try
+            {
+                sb.AppendLine(_ssh.RunCommand("sudo ls -lh /root").Result);
+            }
+            catch (Exception ex)
+            {
+                return $"Ошибка чтения директории /root: {ex.Message}";
+            }
+
+            return sb.ToString();
+        }
+
         private bool IsConnected
         {
             get => _isConnected;
             set
             {
-                _isConnected = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CanAccessNetworkAndSystemTabs));
+                if (_isConnected != value)
+                {
+                    _isConnected = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanAccessNetworkAndSystemTabs));
+                }
             }
         }
 
