@@ -104,9 +104,10 @@
                     <TextBlock Text="Запрос статуса по reqId" Style="{StaticResource Text.BodyStrong}"/>
                 </GroupBox.Header>
                 <StackPanel Margin="10">
+                    <TextBlock Text="Введите id" Margin="0,0,0,10" Style="{StaticResource Text.Body}"/>
                     <TextBox Text="{Binding ReqId}" Width="400" Margin="0,0,0,10" Style="{StaticResource TextBox}" HorizontalAlignment="Left"/>
-                    <Button Command="{Binding FetchRequestStatusCommand}" Margin="0,0,0,20" Foreground="White" Content="Статус" Style="{StaticResource Button.Accent.TextOnly}"  HorizontalAlignment="Left"/>
-                    <TextBlock Text="{Binding RequestStatus}"
+                    <Button Command="{Binding FetchRequestStatusCommand}" Margin="0,0,0,10" Foreground="White" Content="Статус" Style="{StaticResource Button.Accent.TextOnly}"  HorizontalAlignment="Left"/>
+                    <TextBlock Text="{Binding RequestStatus}" Margin="0,0,0,20"
                                TextWrapping="Wrap" Style="{StaticResource Text.Body}"/>
                 </StackPanel>
             </GroupBox>
