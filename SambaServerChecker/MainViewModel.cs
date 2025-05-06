@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SambaServerChecker
 {
@@ -100,13 +102,13 @@ namespace SambaServerChecker
 
             try
             {
-                sb.AppendLine("=== ДИСКИ ===");
+                sb.AppendLine("●      ДИСКИ      ●");
                 sb.AppendLine(_ssh.RunCommand("df -h").Result);
 
-                sb.AppendLine("\n=== ПАМЯТЬ ===");
+                sb.AppendLine("\n●      ПАМЯТЬ      ●");
                 sb.AppendLine(_ssh.RunCommand("free -h").Result);
 
-                sb.AppendLine("\n=== ПРОЦЕССЫ ===");
+                sb.AppendLine("\n●      ПРОЦЕССЫ      ●");
                 sb.AppendLine(_ssh.RunCommand("top -bn1 | head -n 10").Result);
             }
             catch (Exception ex)
@@ -122,12 +124,12 @@ namespace SambaServerChecker
             var sb = new System.Text.StringBuilder();
             var host = _ssh.ConnectionInfo.Host;
 
-            sb.AppendLine("=== ПОРТЫ ===");
+            sb.AppendLine("●      ПОРТЫ      ●");
             sb.AppendLine($"445 (SMB): {CheckPort(host, 445)}");
             sb.AppendLine($"5432 (PostgreSQL): {CheckPort(host, 5432)}");
             sb.AppendLine($"22 (SSH): {CheckPort(host, 22)}");
 
-            sb.AppendLine("\n=== PING ===");
+            sb.AppendLine("\n●      PING      ●");
             sb.AppendLine(_ssh.RunCommand("ping -c 2 localhost").Result);
 
             return sb.ToString();
@@ -203,5 +205,7 @@ namespace SambaServerChecker
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        
     }
 }

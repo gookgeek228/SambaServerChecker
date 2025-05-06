@@ -25,5 +25,30 @@ namespace SambaServerChecker
             InitializeComponent();
             DataContext = new MainViewModel();
         }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Отправляем прокрутку в родительский ScrollViewer, если нужно
+            var scrollViewer = FindParentScrollViewer((ScrollViewer)sender);
+            if (scrollViewer != null)
+            {
+                double offset = e.Delta > 0 ? -40 : 40; // Настройка величины прокрутки
+                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + offset);
+                e.Handled = true;
+            }
+        }
+
+        private ScrollViewer FindParentScrollViewer(DependencyObject child)
+        {
+            while (child != null)
+            {
+                if (child is ScrollViewer)
+                    return (ScrollViewer)child;
+                child = VisualTreeHelper.GetParent(child);
+            }
+            return null;
+        }
+
+
     }
 }
