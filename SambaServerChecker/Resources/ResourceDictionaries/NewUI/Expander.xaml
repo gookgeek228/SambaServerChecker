@@ -1,0 +1,69 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="Expander" TargetType="Expander">
+        <Setter Property="Background" Value="{DynamicResource Light.FillColor.Accent.Default}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Light.Elevation.AccentControl.Border}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Margin" Value="0 5"/>
+        <Setter Property="Foreground" Value="{DynamicResource Light.FillColor.TextOnAccent.Primary}"/>
+        <Setter Property="FontFamily" Value="./../../Fonts/#Segoe UI Variable Static Display"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Background="{TemplateBinding Background}">
+                        <DockPanel>
+                            <!-- Header -->
+                            <ToggleButton x:Name="HeaderButton"
+                                        DockPanel.Dock="Top"
+                                        IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Background="Transparent"
+                                        BorderThickness="0">
+                                <DockPanel>
+                                    <TextBlock x:Name="HeaderText"
+                                             Text="{TemplateBinding Header}"
+                                             Margin="5"
+                                             VerticalAlignment="Center"
+                                             FontFamily="{TemplateBinding FontFamily}"
+                                             FontSize="{TemplateBinding FontSize}"
+                                             Foreground="{TemplateBinding Foreground}"/>
+                                </DockPanel>
+                            </ToggleButton>
+
+                            <!-- Content -->
+                            <Border Background="White">
+                                <ContentPresenter x:Name="Content"
+                                                Visibility="Collapsed"/>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="Content" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HeaderText" Property="Foreground" Value="Black"/>
+                            <Setter Property="Background" Value="{DynamicResource Light.FillColor.Accent.Secondary}"/>
+                        </Trigger>
+
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="HeaderText" Property="Foreground" Value="Black"/>
+                            <Setter Property="Background" Value="{DynamicResource Light.FillColor.Accent.Tertiary}"/>
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="HeaderText" Property="Foreground" Value="{DynamicResource Light.FillColor.TextOnAccent.Disabled}"/>
+                            <Setter Property="Background" Value="{DynamicResource Light.FillColor.Accent.Disabled}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

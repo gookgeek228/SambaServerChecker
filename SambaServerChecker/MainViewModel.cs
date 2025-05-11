@@ -23,7 +23,7 @@ namespace SambaServerChecker
         private List<string> _requestStatus;
 
         // Для подключения к серверу
-        private const string ip = "192.168.211.123";
+        private const string ip = "192.168.194.123";
         private const string user = "ivan";
         private const string password = "Tesak228";
 
@@ -34,6 +34,7 @@ namespace SambaServerChecker
         public List<string> NetworkStatusLines { get; private set; }
         public List<string> CtsStatsLines { get; private set; }
         public List<string> RootDirectoryLines { get; private set; }
+        public List<string> RequestStatus { get; private set; }
         public string ConnectionStatus { get; private set; } = "Не подключено";
 
         public string ReqId
@@ -46,15 +47,6 @@ namespace SambaServerChecker
             }
         }
 
-        public List<string> RequestStatus
-        {
-            get => _requestStatus;
-            set
-            {
-                _requestStatus = value;
-                OnPropertyChanged();
-            }
-        }
 
         public ICommand FetchRequestStatusCommand => new RelayCommand(FetchRequestStatus);
 
@@ -220,20 +212,27 @@ namespace SambaServerChecker
         {
             if (string.IsNullOrWhiteSpace(ReqId))
             {
-                RequestStatus = new List<string> { "Введите reqId." };
+                RequestStatus = new List<string> { "Введите reqId" };
+                OnPropertyChanged(nameof(RequestStatus));
                 return;
             }
 
             try
             {
-                var response = await httpClient.GetStringAsync($"http://172.26.11.66:8900/v2/requests/{ReqId}/status");
-                RequestStatus = response.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                var response = new System.Text.StringBuilder();
+                response.AppendLine(_ssh.RunCommand($"curl -s http://172.26.11.66:8900/v2/requests/{ReqId}/status").Result);
+
+                // Заполняем список строк
+                RequestStatus = response.ToString().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                OnPropertyChanged(nameof(RequestStatus));
             }
             catch (Exception ex)
             {
                 RequestStatus = new List<string> { $"Ошибка: {ex.Message}" };
+                OnPropertyChanged(nameof(RequestStatus));
             }
         }
+
 
         private bool IsConnected
         {
