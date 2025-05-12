@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using Renci.SshNet;
+using Renci.SshNet.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,25 +10,24 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SambaServerChecker
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         private SshClient _ssh;
         private Timer _timer;
+        private Timer _reconnectTimer; // Таймер для переподключения
         private bool _isConnected;
         private string _reqId;
-        private List<string> _requestStatus;
+        private bool _isUpdating;
+        private bool _disposed;
 
-        // Для подключения к серверу
         private const string ip = "192.168.194.123";
         private const string user = "ivan";
         private const string password = "Tesak228";
 
-        // HTTP клиент для запросов к API
         private static readonly HttpClient httpClient = new HttpClient();
 
         public List<string> SystemStatusLines { get; private set; }
@@ -36,87 +36,151 @@ namespace SambaServerChecker
         public List<string> RootDirectoryLines { get; private set; }
         public List<string> RequestStatus { get; private set; }
         public string ConnectionStatus { get; private set; } = "Не подключено";
+        public bool CanAccessNetworkAndSystemTabs => IsConnected;
+
+        public bool IsConnected
+        {
+            get => _isConnected;
+            set
+            {
+                if (_isConnected == value) return;
+                _isConnected = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanAccessNetworkAndSystemTabs));
+            }
+        }
 
         public string ReqId
         {
             get => _reqId;
-            set
-            {
-                _reqId = value;
-                OnPropertyChanged();
-            }
+            set => SetField(ref _reqId, value);
         }
 
-
         public ICommand FetchRequestStatusCommand => new RelayCommand(FetchRequestStatus);
+        public ICommand ReconnectCommand => new RelayCommand(Reconnect);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MainViewModel()
         {
+            InitializeCollections();
+            ConnectToServer();
+            InitializeReconnectTimer(); // Инициализация таймера переподключения
+        }
+
+        private void InitializeCollections()
+        {
             SystemStatusLines = new List<string>();
             NetworkStatusLines = new List<string>();
             CtsStatsLines = new List<string>();
             RootDirectoryLines = new List<string>();
-            ReqId = string.Empty;
             RequestStatus = new List<string>();
-            ConnectToServer();
+            ReqId = string.Empty;
         }
 
         public void ConnectToServer()
         {
             try
             {
-                if (_ssh != null && _ssh.IsConnected)
-                    _ssh.Disconnect();
+                DisposeSshClient();
 
                 _ssh = new SshClient(ip, user, password);
                 _ssh.Connect();
 
-                IsConnected = true;
-                ConnectionStatus = $"Подключено к {ip}";
-                OnPropertyChanged(nameof(ConnectionStatus));
+                UpdateConnectionStatus(true, $"Подключено к {ip}");
                 InitializeTimer();
             }
             catch (Exception ex)
             {
-                IsConnected = false;
-                ConnectionStatus = $"Ошибка подключения: {ex.Message}";
-                OnPropertyChanged(nameof(ConnectionStatus));
-                StopTimer();
+                UpdateConnectionStatus(false, $"Ошибка подключения: {ex.Message}");
             }
         }
 
         private void InitializeTimer()
         {
             _timer = new Timer(3000);
-            _timer.Elapsed += async (s, e) => await UpdateAll();
+            _timer.Elapsed += async (s, e) => await SafeUpdate();
+            _timer.AutoReset = true;
             _timer.Start();
         }
 
-        private void StopTimer()
+        private void InitializeReconnectTimer()
         {
-            _timer?.Stop();
-            _timer?.Dispose();
+            _reconnectTimer = new Timer(10000);
+            _reconnectTimer.Elapsed += async (s, e) => await TryReconnect();
+            _reconnectTimer.AutoReset = true;
+        }
+
+        private async Task TryReconnect()
+        {
+            if (_isUpdating || IsConnected) return;
+
+            try
+            {
+                await Task.Delay(2000);
+                ConnectToServer();
+            }
+            catch (Exception ex)
+            {
+                UpdateConnectionStatus(false, $"Ошибка при переподключении: {ex.Message}");
+            }
+        }
+
+        private async Task SafeUpdate()
+        {
+            if (_isUpdating || !IsConnected) return;
+
+            try
+            {
+                _isUpdating = true;
+                await UpdateAll();
+            }
+            catch (SshConnectionException ex)
+            {
+                HandleDisconnection($"Ошибка SSH: {ex.Message}");
+            }
+            catch (SocketException ex)
+            {
+                HandleDisconnection($"Сетевая ошибка: {ex.Message}");
+            }
+            finally
+            {
+                _isUpdating = false;
+            }
         }
 
         private async Task UpdateAll()
         {
             await Task.Run(() =>
             {
-                if (_ssh != null && _ssh.IsConnected)
-                {
-                    SystemStatusLines = GetSystemInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    NetworkStatusLines = GetNetworkInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    CtsStatsLines = GetCtsStats().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    RootDirectoryLines = GetRootDirectoryInfo().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                if (!CheckSshConnection()) return;
 
-                    OnPropertyChanged(nameof(CtsStatsLines));
-                    OnPropertyChanged(nameof(RootDirectoryLines));
-                    OnPropertyChanged(nameof(SystemStatusLines));
-                    OnPropertyChanged(nameof(NetworkStatusLines));
-                }
+                SystemStatusLines = GetSystemInfo()
+                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+
+                NetworkStatusLines = GetNetworkInfo()
+                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+
+                CtsStatsLines = GetCtsStats()
+                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+
+                RootDirectoryLines = GetRootDirectoryInfo()
+                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList();
+
+                OnPropertiesChanged();
             });
+        }
+
+        private bool CheckSshConnection()
+        {
+            if (_ssh?.IsConnected == true) return true;
+
+            HandleDisconnection("Соединение потеряно");
+            return false;
         }
 
         private string GetSystemInfo()
@@ -148,26 +212,35 @@ namespace SambaServerChecker
             var host = _ssh.ConnectionInfo.Host;
 
             sb.AppendLine("●      ПОРТЫ      ●");
-            sb.AppendLine($"445 (SMB): {CheckPort(host, 445)}");
-            sb.AppendLine($"5432 (PostgreSQL): {CheckPort(host, 5432)}");
-            sb.AppendLine($"22 (SSH): {CheckPort(host, 22)}");
+            sb.AppendLine($"445 (SMB): {CheckPortAsync(host, 445).Result}");
+            sb.AppendLine($"5432 (PostgreSQL): {CheckPortAsync(host, 5432).Result}");
+            sb.AppendLine($"22 (SSH): {CheckPortAsync(host, 22).Result}");
 
             sb.AppendLine("\n●      PING      ●");
-            sb.AppendLine(_ssh.RunCommand("ping -c 2 localhost").Result);
+            try
+            {
+                using (var cmd = _ssh.CreateCommand("ping -c 2 localhost"))
+                {
+                    sb.AppendLine(cmd.Execute());
+                }
+            }
+            catch
+            {
+                sb.AppendLine("Ошибка выполнения ping");
+            }
 
             return sb.ToString();
         }
 
-        private string CheckPort(string host, int port)
+        private async Task<string> CheckPortAsync(string host, int port)
         {
             try
             {
                 using (var client = new TcpClient())
                 {
-                    var result = client.BeginConnect(host, port, null, null);
-                    bool isOpen = result.AsyncWaitHandle.WaitOne(500);
-                    client.EndConnect(result);
-                    return isOpen ? "Открыт" : "Закрыт";
+                    var connectTask = client.ConnectAsync(host, port);
+                    await Task.WhenAny(connectTask, Task.Delay(500));
+                    return client.Connected ? "Открыт" : "Закрыт";
                 }
             }
             catch
@@ -178,84 +251,140 @@ namespace SambaServerChecker
 
         private string GetCtsStats()
         {
-            var sb = new System.Text.StringBuilder();
-
             try
             {
-                sb.AppendLine(_ssh.RunCommand("/usr/share/cts/bin/cts show stats").Result);
+                using (var cmd = _ssh.CreateCommand("/usr/share/cts/bin/cts show stats"))
+                {
+                    return cmd.Execute();
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return $"Ошибка получения CTS stats: {ex.Message}";
+                return "Ошибка получения CTS stats";
             }
-
-            return sb.ToString();
         }
 
         private string GetRootDirectoryInfo()
         {
-            var sb = new System.Text.StringBuilder();
-
             try
             {
-                sb.AppendLine(_ssh.RunCommand("sudo ls -lh /root").Result);
+                using (var cmd = _ssh.CreateCommand("sudo ls -lh /root"))
+                {
+                    return cmd.Execute();
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return $"Ошибка чтения директории /root: {ex.Message}";
+                return "Ошибка чтения директории /root";
             }
-
-            return sb.ToString();
         }
 
         private async void FetchRequestStatus()
         {
             if (string.IsNullOrWhiteSpace(ReqId))
             {
-                RequestStatus = new List<string> { "Введите reqId" };
-                OnPropertyChanged(nameof(RequestStatus));
+                SetRequestStatus(new List<string> { "Введите reqId" });
                 return;
             }
 
+            if (!CheckSshConnection()) return;
+
             try
             {
-                var response = new System.Text.StringBuilder();
-                response.AppendLine(_ssh.RunCommand($"curl -s http://172.26.11.66:8900/v2/requests/{ReqId}/status").Result);
-
-                // Заполняем список строк
-                RequestStatus = response.ToString().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                OnPropertyChanged(nameof(RequestStatus));
+                using (var cmd = _ssh.CreateCommand($"curl -s http://172.26.11.66:8900/v2/requests/{ReqId}/status"))
+                {
+                    var result = await Task.Factory.FromAsync(cmd.BeginExecute(), cmd.EndExecute);
+                    SetRequestStatus(result.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList());
+                }
             }
             catch (Exception ex)
             {
-                RequestStatus = new List<string> { $"Ошибка: {ex.Message}" };
-                OnPropertyChanged(nameof(RequestStatus));
+                SetRequestStatus(new List<string> { $"Ошибка: {ex.Message}" });
             }
         }
 
-
-        private bool IsConnected
+        private void Reconnect()
         {
-            get => _isConnected;
-            set
+            if (_isUpdating) return;
+
+            try
             {
-                if (_isConnected != value)
-                {
-                    _isConnected = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CanAccessNetworkAndSystemTabs));
-                }
+                StopTimer();
+                ConnectToServer();
+            }
+            catch (Exception ex)
+            {
+                UpdateConnectionStatus(false, $"Ошибка переподключения: {ex.Message}");
             }
         }
 
-        public bool CanAccessNetworkAndSystemTabs => IsConnected;
-
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        private void HandleDisconnection(string message)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            StopTimer();
+            _reconnectTimer?.Start(); // Запуск таймера переподключения
+            UpdateConnectionStatus(false, message);
         }
 
-        
+        private void UpdateConnectionStatus(bool isConnected, string message)
+        {
+            IsConnected = isConnected;
+            ConnectionStatus = message;
+            OnPropertyChanged(nameof(ConnectionStatus));
+        }
+
+        private void SetRequestStatus(List<string> status)
+        {
+            RequestStatus = status;
+            OnPropertyChanged(nameof(RequestStatus));
+        }
+
+        private void OnPropertiesChanged()
+        {
+            OnPropertyChanged(nameof(SystemStatusLines));
+            OnPropertyChanged(nameof(NetworkStatusLines));
+            OnPropertyChanged(nameof(CtsStatsLines));
+            OnPropertyChanged(nameof(RootDirectoryLines));
+        }
+
+        private void StopTimer()
+        {
+            _timer?.Stop();
+            _timer?.Dispose();
+        }
+
+        private void DisposeSshClient()
+        {
+            if (_ssh == null) return;
+
+            if (_ssh.IsConnected)
+            {
+                _ssh.Disconnect();
+            }
+            _ssh.Dispose();
+            _ssh = null;
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            StopTimer();
+            _reconnectTimer?.Stop();
+            DisposeSshClient();
+            httpClient?.Dispose();
+            _disposed = true;
+        }
+
+        protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            OnPropertyChanged(propertyName);
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

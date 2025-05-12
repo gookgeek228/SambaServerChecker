@@ -43,7 +43,6 @@
                 <Expander.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="Системные ресурсы" Style="{StaticResource Text.Body}"/>
-                        <!-- Применяем стиль Text.Body -->
                     </DataTemplate>
                 </Expander.HeaderTemplate>
                 <ListView ItemsSource="{Binding SystemStatusLines}"
@@ -68,7 +67,6 @@
                 <Expander.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="Сетевые параметры" Style="{StaticResource Text.Body}"/>
-                        <!-- Применяем стиль Text.Body -->
                     </DataTemplate>
                 </Expander.HeaderTemplate>
                 <ListView ItemsSource="{Binding NetworkStatusLines}"
@@ -93,7 +91,6 @@
                 <Expander.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="CTS Статистика" Style="{StaticResource Text.Body}"/>
-                        <!-- Применяем стиль Text.Body -->
                     </DataTemplate>
                 </Expander.HeaderTemplate>
                 <ListView ItemsSource="{Binding CtsStatsLines}"
