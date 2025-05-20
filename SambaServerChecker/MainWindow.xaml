@@ -108,23 +108,35 @@
 
             <!-- Содержимое /root -->
             <Expander Header="Содержимое /root" 
-                      IsExpanded="False"
-                      Foreground="White"
-                      Margin="0,0,0,20"
-                      Style="{StaticResource Expander}">
+          IsExpanded="False"
+          Foreground="White"
+          Margin="0,0,0,20"
+          Style="{StaticResource Expander}">
                 <Expander.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="Содержимое /root" Style="{StaticResource Text.Body}"/>
                     </DataTemplate>
                 </Expander.HeaderTemplate>
                 <ListView ItemsSource="{Binding RootDirectoryLines}"
-                          Style="{StaticResource ListView}"
-                          ScrollViewer.VerticalScrollBarVisibility="Disabled">
+              Style="{StaticResource ListView}"
+              ScrollViewer.VerticalScrollBarVisibility="Disabled">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding}" 
-                                       Style="{StaticResource Text.Body}"
-                                       Focusable="False"/>
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" 
+                                           Text="{Binding FileInfo}" 
+                                           Style="{StaticResource Text.Body}"
+                                           Margin="0,0,20,0"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Content}" 
+                                           Style="{StaticResource Text.Body}"
+                                           Margin="0,0,20,0"/>
+                            </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

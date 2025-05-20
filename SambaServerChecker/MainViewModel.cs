@@ -18,13 +18,13 @@ namespace SambaServerChecker
     {
         private SshClient _ssh;
         private Timer _timer;
-        private Timer _reconnectTimer; // Таймер для переподключения
+        private Timer _reconnectTimer;
         private bool _isConnected;
         private string _reqId;
         private bool _isUpdating;
         private bool _disposed;
 
-        private const string ip = "192.168.194.123";
+        private const string ip = "192.168.242.123";
         private const string user = "ivan";
         private const string password = "Tesak228";
 
@@ -33,10 +33,16 @@ namespace SambaServerChecker
         public List<string> SystemStatusLines { get; private set; }
         public List<string> NetworkStatusLines { get; private set; }
         public List<string> CtsStatsLines { get; private set; }
-        public List<string> RootDirectoryLines { get; private set; }
+        public List<FileEntry> RootDirectoryLines { get; private set; }
         public List<string> RequestStatus { get; private set; }
         public string ConnectionStatus { get; private set; } = "Не подключено";
         public bool CanAccessNetworkAndSystemTabs => IsConnected;
+
+        public class FileEntry
+        {
+            public string FileInfo { get; set; }
+            public string Content { get; set; }
+        }
 
         public bool IsConnected
         {
@@ -65,7 +71,7 @@ namespace SambaServerChecker
         {
             InitializeCollections();
             ConnectToServer();
-            InitializeReconnectTimer(); // Инициализация таймера переподключения
+            InitializeReconnectTimer();
         }
 
         private void InitializeCollections()
@@ -73,7 +79,7 @@ namespace SambaServerChecker
             SystemStatusLines = new List<string>();
             NetworkStatusLines = new List<string>();
             CtsStatsLines = new List<string>();
-            RootDirectoryLines = new List<string>();
+            RootDirectoryLines = new List<FileEntry>();
             RequestStatus = new List<string>();
             ReqId = string.Empty;
         }
@@ -167,9 +173,7 @@ namespace SambaServerChecker
                     .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
 
-                RootDirectoryLines = GetRootDirectoryInfo()
-                    .Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                    .ToList();
+                RootDirectoryLines = GetRootDirectoryInfo();
 
                 OnPropertiesChanged();
             });
@@ -264,20 +268,69 @@ namespace SambaServerChecker
             }
         }
 
-        private string GetRootDirectoryInfo()
+        private List<FileEntry> GetRootDirectoryInfo()
         {
             try
             {
                 using (var cmd = _ssh.CreateCommand("sudo ls -lh /root"))
+                {
+                    var result = cmd.Execute();
+                    return ProcessRootDirectoryEntries(result);
+                }
+            }
+            catch
+            {
+                return new List<FileEntry> { new FileEntry { FileInfo = "Ошибка чтения директории /root" } };
+            }
+        }
+
+        private List<FileEntry> ProcessRootDirectoryEntries(string rawOutput)
+        {
+            var entries = new List<FileEntry>();
+            foreach (var line in rawOutput.Split('\n').Where(l => !string.IsNullOrWhiteSpace(l)))
+            {
+                var entry = new FileEntry { FileInfo = line };
+
+                if (IsLogFile(line))
+                {
+                    var fileName = ExtractFileName(line);
+                    entry.Content = GetFileContent(fileName);
+                }
+
+                entries.Add(entry);
+            }
+
+            return entries;
+        }
+
+        private bool IsLogFile(string line)
+        {
+            return line.TrimEnd().EndsWith(".log");
+        }
+
+        private string ExtractFileName(string line)
+        {
+            var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length >= 9 ? parts[8] : null;
+        }
+
+        private string GetFileContent(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) return string.Empty;
+
+            try
+            {
+                using (var cmd = _ssh.CreateCommand($"sudo cat /root/{fileName}"))
                 {
                     return cmd.Execute();
                 }
             }
             catch
             {
-                return "Ошибка чтения директории /root";
+                return "Ошибка чтения файла";
             }
         }
+
 
         private async void FetchRequestStatus()
         {
