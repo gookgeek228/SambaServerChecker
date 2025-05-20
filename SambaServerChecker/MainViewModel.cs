@@ -74,6 +74,7 @@ namespace SambaServerChecker
             InitializeReconnectTimer();
         }
 
+        // Инициализация и подключение
         private void InitializeCollections()
         {
             SystemStatusLines = new List<string>();
@@ -117,6 +118,7 @@ namespace SambaServerChecker
             _reconnectTimer.AutoReset = true;
         }
 
+        // Переподключение
         private async Task TryReconnect()
         {
             if (_isUpdating || IsConnected) return;
@@ -155,6 +157,65 @@ namespace SambaServerChecker
             }
         }
 
+        private void Reconnect()
+        {
+            if (_isUpdating) return;
+
+            try
+            {
+                StopTimer();
+                ConnectToServer();
+            }
+            catch (Exception ex)
+            {
+                UpdateConnectionStatus(false, $"Ошибка переподключения: {ex.Message}");
+            }
+        }
+
+        private void HandleDisconnection(string message)
+        {
+            StopTimer();
+            _reconnectTimer?.Start(); // Запуск таймера переподключения
+            UpdateConnectionStatus(false, message);
+        }
+
+        private void UpdateConnectionStatus(bool isConnected, string message)
+        {
+            IsConnected = isConnected;
+            ConnectionStatus = message;
+            OnPropertyChanged(nameof(ConnectionStatus));
+        }
+
+        private void StopTimer()
+        {
+            _timer?.Stop();
+            _timer?.Dispose();
+        }
+
+        private void DisposeSshClient()
+        {
+            if (_ssh == null) return;
+
+            if (_ssh.IsConnected)
+            {
+                _ssh.Disconnect();
+            }
+            _ssh.Dispose();
+            _ssh = null;
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            StopTimer();
+            _reconnectTimer?.Stop();
+            DisposeSshClient();
+            httpClient?.Dispose();
+            _disposed = true;
+        }
+
+        // Обновление данных
         private async Task UpdateAll()
         {
             await Task.Run(() =>
@@ -190,7 +251,6 @@ namespace SambaServerChecker
         private string GetSystemInfo()
         {
             var sb = new System.Text.StringBuilder();
-
             try
             {
                 sb.AppendLine("●      ДИСКИ      ●");
@@ -236,23 +296,6 @@ namespace SambaServerChecker
             return sb.ToString();
         }
 
-        private async Task<string> CheckPortAsync(string host, int port)
-        {
-            try
-            {
-                using (var client = new TcpClient())
-                {
-                    var connectTask = client.ConnectAsync(host, port);
-                    await Task.WhenAny(connectTask, Task.Delay(500));
-                    return client.Connected ? "Открыт" : "Закрыт";
-                }
-            }
-            catch
-            {
-                return "Ошибка";
-            }
-        }
-
         private string GetCtsStats()
         {
             try
@@ -281,6 +324,23 @@ namespace SambaServerChecker
             catch
             {
                 return new List<FileEntry> { new FileEntry { FileInfo = "Ошибка чтения директории /root" } };
+            }
+        }
+
+        private async Task<string> CheckPortAsync(string host, int port)
+        {
+            try
+            {
+                using (var client = new TcpClient())
+                {
+                    var connectTask = client.ConnectAsync(host, port);
+                    await Task.WhenAny(connectTask, Task.Delay(500));
+                    return client.Connected ? "Открыт" : "Закрыт";
+                }
+            }
+            catch
+            {
+                return "Ошибка";
             }
         }
 
@@ -331,7 +391,7 @@ namespace SambaServerChecker
             }
         }
 
-
+        // Запрос по reqId
         private async void FetchRequestStatus()
         {
             if (string.IsNullOrWhiteSpace(ReqId))
@@ -356,35 +416,6 @@ namespace SambaServerChecker
             }
         }
 
-        private void Reconnect()
-        {
-            if (_isUpdating) return;
-
-            try
-            {
-                StopTimer();
-                ConnectToServer();
-            }
-            catch (Exception ex)
-            {
-                UpdateConnectionStatus(false, $"Ошибка переподключения: {ex.Message}");
-            }
-        }
-
-        private void HandleDisconnection(string message)
-        {
-            StopTimer();
-            _reconnectTimer?.Start(); // Запуск таймера переподключения
-            UpdateConnectionStatus(false, message);
-        }
-
-        private void UpdateConnectionStatus(bool isConnected, string message)
-        {
-            IsConnected = isConnected;
-            ConnectionStatus = message;
-            OnPropertyChanged(nameof(ConnectionStatus));
-        }
-
         private void SetRequestStatus(List<string> status)
         {
             RequestStatus = status;
@@ -397,35 +428,6 @@ namespace SambaServerChecker
             OnPropertyChanged(nameof(NetworkStatusLines));
             OnPropertyChanged(nameof(CtsStatsLines));
             OnPropertyChanged(nameof(RootDirectoryLines));
-        }
-
-        private void StopTimer()
-        {
-            _timer?.Stop();
-            _timer?.Dispose();
-        }
-
-        private void DisposeSshClient()
-        {
-            if (_ssh == null) return;
-
-            if (_ssh.IsConnected)
-            {
-                _ssh.Disconnect();
-            }
-            _ssh.Dispose();
-            _ssh = null;
-        }
-
-        public void Dispose()
-        {
-            if (_disposed) return;
-
-            StopTimer();
-            _reconnectTimer?.Stop();
-            DisposeSshClient();
-            httpClient?.Dispose();
-            _disposed = true;
         }
 
         protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
