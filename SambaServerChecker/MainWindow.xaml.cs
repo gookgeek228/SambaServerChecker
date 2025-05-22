@@ -26,6 +26,7 @@ namespace SambaServerChecker
             DataContext = new MainViewModel();
         }
 
+        // Настройка скроллинга
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var scrollViewer = FindParentScrollViewer((ScrollViewer)sender);
@@ -37,6 +38,7 @@ namespace SambaServerChecker
             }
         }
 
+        // Нахождение родительского ScrollViewer
         private ScrollViewer FindParentScrollViewer(DependencyObject child)
         {
             while (child != null)
@@ -48,6 +50,16 @@ namespace SambaServerChecker
             return null;
         }
 
+        // Копирование reqId в буфер обмена при нажатии
+        private void TextBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox != null)
+            {
+                // Копируем текст в буфер обмена
+                Clipboard.SetText(textBox.Text);
+            }
+        }
 
     }
 }

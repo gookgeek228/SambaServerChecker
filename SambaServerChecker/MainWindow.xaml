@@ -52,6 +52,7 @@
                         <DataTemplate>
                             <TextBlock Text="{Binding}" 
                                        Style="{StaticResource Text.Body}"
+                                       Height="20"
                                        Focusable="False"/>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -76,6 +77,7 @@
                         <DataTemplate>
                             <TextBlock Text="{Binding}" 
                                        Style="{StaticResource Text.Body}"
+                                       Height="20"
                                        Focusable="False"/>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -100,6 +102,7 @@
                         <DataTemplate>
                             <TextBlock Text="{Binding}" 
                                        Style="{StaticResource Text.Body}"
+                                       Height="20"
                                        Focusable="False"/>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -108,21 +111,21 @@
 
             <!-- Содержимое /root -->
             <Expander Header="Содержимое /root" 
-          IsExpanded="False"
-          Foreground="White"
-          Margin="0,0,0,20"
-          Style="{StaticResource Expander}">
+                      IsExpanded="False"
+                      Foreground="White"
+                      Margin="0,0,0,20"
+                      Style="{StaticResource Expander}">
                 <Expander.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="Содержимое /root" Style="{StaticResource Text.Body}"/>
                     </DataTemplate>
                 </Expander.HeaderTemplate>
                 <ListView ItemsSource="{Binding RootDirectoryLines}"
-              Style="{StaticResource ListView}"
-              ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                          Style="{StaticResource ListView}"
+                          ScrollViewer.VerticalScrollBarVisibility="Disabled">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="0,5">
+                            <Grid Margin="0,5" Height="20">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -132,10 +135,17 @@
                                            Text="{Binding FileInfo}" 
                                            Style="{StaticResource Text.Body}"
                                            Margin="0,0,20,0"/>
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding Content}" 
-                                           Style="{StaticResource Text.Body}"
-                                           Margin="0,0,20,0"/>
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding Content}" 
+                                         Style="{StaticResource TextBox}"
+                                         Cursor="Hand"
+                                         HorizontalAlignment="Right"
+                                         Margin="0,0,20,0"
+                                         IsReadOnly="True"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Focusable="False"
+                                         PreviewMouseDown="TextBox_PreviewMouseDown"/>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -164,13 +174,19 @@
                              Style="{StaticResource TextBox}"
                              Width="200"
                              HorizontalAlignment="Center"/>
-                    <Button Command="{Binding FetchRequestStatusCommand}" 
-                           Content="Получить" 
-                           Margin="0,0,0,10"
-                           Style="{StaticResource Button.Accent.TextOnly}"
-                           HorizontalAlignment="Center"
-                           Padding="10,5"/>
-
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,0,10"
+                                HorizontalAlignment="Center" >
+                        <Button Command="{Binding FetchRequestStatusCommand}" 
+                                Content="Получить" 
+                                Style="{StaticResource Button.Accent.TextOnly}"
+                                Padding="10,5"/>
+                        <Button Command="{Binding EraseRequestStatusFieldCommand}" 
+                                Content="Очистить" 
+                                Style="{StaticResource Button.Accent.TextOnly}"
+                                Padding="10,5"/>
+                    </StackPanel>
+                    
                     <ListView ItemsSource="{Binding RequestStatus}"
                               Style="{StaticResource ListView}"
                               ScrollViewer.VerticalScrollBarVisibility="Disabled">
@@ -178,6 +194,7 @@
                             <DataTemplate>
                                 <TextBlock Text="{Binding}" 
                                            Style="{StaticResource Text.Body}"
+                                           Height="20"
                                            Focusable="False"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>

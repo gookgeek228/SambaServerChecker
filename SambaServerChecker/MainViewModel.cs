@@ -23,6 +23,8 @@ namespace SambaServerChecker
         private string _reqId;
         private bool _isUpdating;
         private bool _disposed;
+        private bool _isFetchingReqId;
+
 
         private const string ip = "192.168.242.123";
         private const string user = "ivan";
@@ -63,7 +65,7 @@ namespace SambaServerChecker
         }
 
         public ICommand FetchRequestStatusCommand => new RelayCommand(FetchRequestStatus);
-        public ICommand ReconnectCommand => new RelayCommand(Reconnect);
+        public ICommand EraseRequestStatusFieldCommand => new RelayCommand(EraseRequestStatusField);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -74,7 +76,7 @@ namespace SambaServerChecker
             InitializeReconnectTimer();
         }
 
-        // Инициализация и подключение
+        // Инициализация
         private void InitializeCollections()
         {
             SystemStatusLines = new List<string>();
@@ -85,6 +87,7 @@ namespace SambaServerChecker
             ReqId = string.Empty;
         }
 
+        // Подключение к серверу
         public void ConnectToServer()
         {
             try
@@ -103,6 +106,7 @@ namespace SambaServerChecker
             }
         }
 
+        // Таймер обновления данных мониторинга
         private void InitializeTimer()
         {
             _timer = new Timer(3000);
@@ -111,6 +115,7 @@ namespace SambaServerChecker
             _timer.Start();
         }
 
+        // Таймер переподключения
         private void InitializeReconnectTimer()
         {
             _reconnectTimer = new Timer(10000);
@@ -118,7 +123,7 @@ namespace SambaServerChecker
             _reconnectTimer.AutoReset = true;
         }
 
-        // Переподключение
+        // Автоматическое переподключение
         private async Task TryReconnect()
         {
             if (_isUpdating || IsConnected) return;
@@ -157,28 +162,15 @@ namespace SambaServerChecker
             }
         }
 
-        private void Reconnect()
-        {
-            if (_isUpdating) return;
-
-            try
-            {
-                StopTimer();
-                ConnectToServer();
-            }
-            catch (Exception ex)
-            {
-                UpdateConnectionStatus(false, $"Ошибка переподключения: {ex.Message}");
-            }
-        }
-
+        // Запуск таймера переподключения
         private void HandleDisconnection(string message)
         {
             StopTimer();
-            _reconnectTimer?.Start(); // Запуск таймера переподключения
+            _reconnectTimer?.Start();
             UpdateConnectionStatus(false, message);
         }
 
+        // Обновление статуса соединения
         private void UpdateConnectionStatus(bool isConnected, string message)
         {
             IsConnected = isConnected;
@@ -186,12 +178,14 @@ namespace SambaServerChecker
             OnPropertyChanged(nameof(ConnectionStatus));
         }
 
+        // Остановка таймера
         private void StopTimer()
         {
             _timer?.Stop();
             _timer?.Dispose();
         }
 
+        // Освобождение ресурсов SSH клиента
         private void DisposeSshClient()
         {
             if (_ssh == null) return;
@@ -204,6 +198,7 @@ namespace SambaServerChecker
             _ssh = null;
         }
 
+        // Освобождение ресурсов (таймеры и клиенты)
         public void Dispose()
         {
             if (_disposed) return;
@@ -363,6 +358,7 @@ namespace SambaServerChecker
             return entries;
         }
 
+        // Определение log файлов в /root
         private bool IsLogFile(string line)
         {
             return line.TrimEnd().EndsWith(".log");
@@ -394,6 +390,8 @@ namespace SambaServerChecker
         // Запрос по reqId
         private async void FetchRequestStatus()
         {
+            _isFetchingReqId = true;
+
             if (string.IsNullOrWhiteSpace(ReqId))
             {
                 SetRequestStatus(new List<string> { "Введите reqId" });
@@ -414,6 +412,18 @@ namespace SambaServerChecker
             {
                 SetRequestStatus(new List<string> { $"Ошибка: {ex.Message}" });
             }
+            finally
+            {
+                _isFetchingReqId = false;
+            }
+        }
+
+        // Очистка поля ввода reqId
+        private void EraseRequestStatusField()
+        {
+            if (_isFetchingReqId) return;
+
+            ReqId = string.Empty;
         }
 
         private void SetRequestStatus(List<string> status)
